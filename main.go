@@ -130,7 +130,7 @@ func handlePauseResume(ch <-chan os.Signal) {
 }
 
 func main() {
-	flag.DurationVar(&workTime, "ptime", 25*time.Minute, "length of each work session")
+	flag.DurationVar(&workTime, "wtime", 25*time.Minute, "length of each work session")
 	flag.DurationVar(&restTime, "rtime", 5*time.Minute, "length of each rest session")
 	flag.Parse()
 
