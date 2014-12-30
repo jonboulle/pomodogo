@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export GOPATH=${PWD}/gopath
+
+rm -f ${GOPATH}/src/github.com/jonboulle/pomodogo
+mkdir -p ${GOPATH}/src/github.com/jonboulle/
+ln -s ${PWD} ${GOPATH}/src/github.com/jonboulle/pomodogo
+
+go build github.com/jonboulle/pomodogo
