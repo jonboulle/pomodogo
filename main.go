@@ -56,8 +56,10 @@ func prompt(from, to string) {
 	c.Run()
 }
 
-// handleStopStart acts in response to SIGUSR1 and either stops a currently
-// running work or rest session, or starts a new work session
+// handleStopStart acts as the main session handler. It acts in response to
+// SIGUSR1 and either stops a currently running work or rest session, or starts
+// a new work session; and also triggers a prompt if a session terminates
+// normally (i.e. its countdown expires)
 func handleStopStart(ch <-chan os.Signal) {
 	doneCh := make(chan struct{})
 	for {
@@ -70,12 +72,12 @@ func handleStopStart(ch <-chan os.Signal) {
 				prevMode = mode
 				mode = modeWork
 				prompt("Rest", "Pomodoro")
-				go run("work", workTime, doneCh)
+				go session("work", workTime, doneCh)
 			case modeWork:
 				prevMode = mode
 				mode = modeRest
 				prompt("Pomodoro", "Rest")
-				go run("rest", restTime, doneCh)
+				go session("rest", restTime, doneCh)
 			default:
 				panic("bad mode!")
 			}
@@ -96,7 +98,7 @@ func handleStopStart(ch <-chan os.Signal) {
 				case modeRest:
 					ssCh = make(chan struct{})
 					mode = modeWork
-					go run("work", workTime, doneCh)
+					go session("work", workTime, doneCh)
 				default:
 					panic("unexpected prevMode!")
 				}
@@ -145,11 +147,12 @@ func main() {
 	<-make(chan struct{})
 }
 
-// run counts down from the given duration.
-// If the countdown expires, done will be closed.
+// session starts a new session of the given type, counting down from the given duration.
+// If the countdown expires, the session is considered finished, and done will be closed.
 // If the global pause/resume channel is triggered, the countdown is paused/resumed.
-// If the global stop/start channel is triggered, the countdown is stopped.
-func run(typ string, t time.Duration, done chan<- struct{}) {
+// If the global stop/start channel is triggered, the session terminates.
+// Blocking, so should probably be invoked in a goroutine.
+func session(typ string, t time.Duration, done chan<- struct{}) {
 	fmt.Printf("starting new %s session\n", typ)
 	countdown := t.Seconds()
 	ticker := time.Tick(time.Second)
