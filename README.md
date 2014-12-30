@@ -3,9 +3,9 @@ pomodogo
 
 another golang app with a stupid punny name
 
-Simple pomodoro-like timer that responds to two things:
-- SIGUSR1, causing it to pause/resume the current session (if any)
-- SIGUSR2, causing it to either start a new pomo session or stop any session currently running
+Simple pomodoro-like timer, with alternating "work" and "rest" sessions, that responds to two things:
+- SIGUSR1, causing it to either start a new work session or stop any work/rest session currently running
+- SIGUSR2, causing it to pause/resume the current session (if any)
 
 Will pop up a prompt when a session ends; any input to the prompt causes the next session to begin.
 
